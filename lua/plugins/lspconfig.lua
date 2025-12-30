@@ -1,22 +1,20 @@
 return {
 
    'neovim/nvim-lspconfig',
-   dependencies = {
-      'williamboman/mason.nvim',
-      cmd = { 'Mason', 'MasonInstall', 'MasonUpdate' },
-   },
    config = function()
-      require('mason').setup()
-
       local lspc = vim.lsp.config
       local capabilities = vim.lsp.protocol.make_client_capabilities()
+      local util = require('lspconfig.util')
       local servers = {
-         'lua-language-server',
-         'bash-language-server',
          'bashls',
+         'html',
          'lua_ls',
+         'denols',
+         'biome',
+         'clangd',
       }
       vim.lsp.enable(servers)
+
       -- Lua
       lspc('lua_ls', {
          capabilities = capabilities,
@@ -27,12 +25,42 @@ return {
          },
       })
 
-      -- Python
-      lspc('pyright', { capabilities = capabilities })
+      -- shellcheck
+      lspc('bashls', {
+         filetypes = { 'sh', 'zsh', 'bash' }, -- Add any other relevant file types
+         root_markers = { '.git' },
+      })
 
-      -- Keymaps
-      vim.keymap.set('n', 'gd', vim.lsp.buf.definition, { desc = 'Go to Definition' })
-      vim.keymap.set('n', 'K', vim.lsp.buf.hover, { desc = 'Hover Documentation' })
-      vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, { desc = 'Code Action' })
+      --[[ javascript ]]
+      -- Biome
+      lspc('biome', {
+         cmd = { 'biome', 'lsp-proxy' },
+         capabilities = capabilities,
+         root_dir = function(bufnr, on_dir)
+            local fname = vim.api.nvim_buf_get_name(bufnr)
+            local root_files = { 'biome.json', 'biome.jsonc', '.git' }
+            root_files = util.insert_package_json(root_files, 'biome', fname)
+            local root_dir = vim.fs.dirname(vim.fs.find(root_files, { path = fname, upward = true })[1])
+            on_dir(root_dir)
+         end,
+      })
+
+      -- deno
+      lspc('denols', {
+         root_markers = { 'deno.json', 'deno.jsonc', '.git' },
+      })
+
+      -- clang
+      lspc('clangd', {
+         filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'proto' },
+         root_markers = {
+            '.clangd',
+            '.clang-tidy',
+            '.clang-format',
+            'compile_commands.json',
+            'compile_flags.txt',
+            'configure.ac', -- GNU Autotools.
+         },
+      })
    end,
 }

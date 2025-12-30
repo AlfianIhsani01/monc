@@ -1,6 +1,60 @@
 return {
    'stevearc/conform.nvim',
    event = { 'BufWritePre' },
+   keys = {
+      { '<localleader>f', desc = '+Formatter' },
+      {
+         -- Customize or remove this keymap to your liking
+         '<localleader>ff',
+         '<cmd>Format<CR>',
+         mode = '',
+         desc = 'Format buffer',
+      },
+      {
+         '<localleader>fv',
+         function()
+            require('conform').format({ async = true }, function(err)
+               if not err then
+                  local mode = vim.api.nvim_get_mode().mode
+                  if vim.startswith(string.lower(mode), 'v') then
+                     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, false, true), 'n', true)
+                  end
+               end
+            end)
+         end,
+         mode = '',
+         desc = 'Format code',
+      },
+      {
+         '<leader>ft',
+         ':FormatToggle<CR>',
+         mode = '',
+         desc = 'Toggle autoformat',
+      },
+   },
+   opts = {
+      formatters_by_ft = {
+         lua = { 'stylua' },
+         -- Conform will run the first available formatter
+         javascript = { 'biome', 'prettierd', 'prettier', stop_after_first = true },
+         sh = { 'shfmt' },
+      },
+      -- stylua: ignore
+      formatters = {
+         shfmt = { append_args = {
+            '-i=3', }},
+         biome = { append_args = {
+            'format' }},
+
+      },
+      -- format_on_save = function(bufnr)
+      --    -- Disable with a global or buffer-local variable
+      --    if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+      --       return
+      --    end
+      --    return { timeout_ms = 500, lsp_format = 'fallback' }
+      -- end,
+   },
    cmd = {
       'ConformInfo',
       -- Format Command
@@ -56,63 +110,5 @@ return {
       end, {
          desc = 'Re-enable autoformat-on-save',
       }),
-   },
-   keys = {
-      {
-         -- Customize or remove this keymap to your liking
-         '<localleader>ff',
-         ':Format<CR>',
-         mode = '',
-         desc = 'Format buffer',
-      },
-      {
-         '<localleader>fv',
-         function()
-            require('conform').format({ async = true }, function(err)
-               if not err then
-                  local mode = vim.api.nvim_get_mode().mode
-                  if vim.startswith(string.lower(mode), 'v') then
-                     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, false, true), 'n', true)
-                  end
-               end
-            end)
-         end,
-         mode = '',
-         desc = 'Format code',
-      },
-      {
-         '<leader>fa',
-         ':FormatToggle<CR>',
-         mode = '',
-         desc = 'Toggle autoformat',
-      },
-   },
-   opts = {
-      formatters_by_ft = {
-         lua = { 'stylua' },
-         -- Conform will run multiple formatters sequentially
-         python = { 'isort', 'black' },
-         -- You can customize some of the format options for the filetype (:help conform.format)
-         rust = { 'rustfmt', lsp_format = 'fallback' },
-         -- Conform will run the first available formatter
-         javascript = { 'prettierd', 'prettier', stop_after_first = true },
-         sh = { 'shfmt' },
-      },
-      -- stylua: ignore
-      formatters = {
-         stylua = { append_args = {
-            '--indent-type=Spaces',
-            '--indent-width=3',
-            '--quote-style=AutoPreferSingle', }, },
-         shfmt = { append_args = {
-            '-i=3', } },
-      },
-      format_on_save = function(bufnr)
-         -- Disable with a global or buffer-local variable
-         if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
-            return
-         end
-         return { timeout_ms = 500, lsp_format = 'fallback' }
-      end,
    },
 }

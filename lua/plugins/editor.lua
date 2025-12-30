@@ -10,7 +10,14 @@ return {
       'nvim-mini/mini.align',
       event = 'User FilePost',
       config = function()
-         require('mini.align').setup({})
+         require('mini.align').setup()
+      end,
+   },
+   {
+      'nvim-mini/mini.pairs',
+      version = '*',
+      config = function()
+         require('mini.pairs').setup()
       end,
    },
    {
@@ -30,49 +37,78 @@ return {
       end,
    },
    {
-      'windwp/nvim-autopairs',
-      event = 'User FilePost',
+      'nvim-mini/mini.jump2d',
+      version = '*',
       config = function()
-         require('nvim-autopairs').setup()
+         require('mini.jump2d').setup()
       end,
    },
    {
-      'lewis6991/gitsigns.nvim',
-      event = 'BufEnter',
+      'nvim-mini/mini.splitjoin',
+      version = '*',
       config = function()
-         require('gitsigns').setup({
-            _refresh_staged_on_update = false, -- Don't refresh constantly
-            update_debounce = 200, -- Debounce updates
-            max_file_length = 10000, -- Skip large files
+         require('mini.splitjoin').setup({
+            mappings = {
+               toggle = 'gS',
+               split = '',
+               join = '',
+            },
+
+            -- Detection options: where split/join should be done
+            detect = {
+               -- Array of Lua patterns to detect region with arguments.
+               -- Default: { '%b()', '%b[]', '%b{}' }
+               brackets = nil,
+
+               -- String Lua pattern defining argument separator
+               separator = ',',
+
+               -- Array of Lua patterns for sub-regions to exclude separators from.
+               -- Enables correct detection in presence of nested brackets and quotes.
+               -- Default: { '%b()', '%b[]', '%b{}', '%b""', "%b''" }
+               exclude_regions = nil,
+            },
+
+            -- Split options
+            split = {
+               hooks_pre = {},
+               hooks_post = {},
+            },
+
+            -- Join options
+            join = {
+               hooks_pre = {},
+               hooks_post = {},
+            },
          })
       end,
    },
    {
-      'nvim-mini/mini.indentscope',
+      'nvim-mini/mini.move',
       version = '*',
       event = 'User FilePost',
-      opts = {
-         -- Draw options
-         draw = {
-            -- Delay (in ms) between event and start of drawing scope indicator
-            delay = 50,
-            priority = 2,
-         },
+      config = function()
+         require('mini.move').setup({
+            mappings = {
+               -- Move visual selection in Visual mode. Defaults are Alt (Meta) + hjkl.
+               left = '<C-n>',
+               right = '<C-i>',
+               down = '<C-e>',
+               up = '<C-u>',
 
-         -- Module mappings. Use `''` (empty string) to disable one.
-         mappings = {
-            -- Textobjects
-            object_scope = 'o',
-            object_scope_with_border = 'oi',
+               -- Move current line in Normal mode
+               line_left = '<C-n>',
+               line_right = '<C-i>',
+               line_down = '<C-e>',
+               line_up = '<C-u>',
+            },
 
-            -- Motions (jump to respective border line; if not present - body line)
-            goto_top = '[o',
-            goto_bottom = ']o',
-         },
-
-         -- Which character to use for drawing scope indicator
-         symbol = '⠨',
-      },
-      -- end,
+            -- Options which control moving behavior
+            options = {
+               -- Automatically reindent selection during linewise vertical move
+               reindent_linewise = true,
+            },
+         })
+      end,
    },
 }

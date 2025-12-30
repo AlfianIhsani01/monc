@@ -1,5 +1,12 @@
 return {
    {
+      'nvim-mini/mini.notify',
+      version = '*',
+      config = function()
+         require('mini.notify').setup()
+      end,
+   },
+   {
       'nvim-mini/mini.starter',
       version = '*',
       config = function()
@@ -13,25 +20,76 @@ return {
       event = 'BufEnter',
       cmd = { 'MiniFiles' },
       config = function()
-         require('mini.files').setup()
-         vim.keymap.set('n', '<leader>E', function()
-            require('mini.files').open()
-         end, { desc = 'Open Explorer' })
+         -- require('mini.files').setup()
+         local miniFiles = require('mini.files')
+         miniFiles.setup({
+            -- Customization of shown content
+            content = {
+               filter = nil,
+               highlight = nil,
+               prefix = nil,
+               sort = nil,
+            },
+
+            -- Moule mappings created only inside explorer.
+            -- Use `''` (empty string) to not create one.
+            mappings = {
+               close = 'q',
+               go_in = 'i',
+               go_in_plus = 'I',
+               go_out = 'n',
+               go_out_plus = 'N',
+               mark_goto = "'",
+               mark_set = 'm',
+               reset = '<BS>',
+               reveal_cwd = '@',
+               show_help = 'g?',
+               synchronize = '=',
+               trim_left = '<',
+               trim_right = '>',
+            },
+
+            -- General options
+            options = {
+               -- Whether to delete permanently or move into module-specific trash
+               permanent_delete = true,
+               -- Whether to use for editing directories
+               use_as_default_explorer = true,
+            },
+
+            -- Customization of explorer windows
+            windows = {
+               -- Maximum number of windows to show side by side
+               max_number = math.huge,
+               -- Whether to show preview of file/directory under cursor
+               preview = false,
+               -- Width of focused window
+               width_focus = 50,
+               -- Width of non-focused window
+               width_nofocus = 15,
+               -- Width of preview window
+               width_preview = 25,
+            },
+         })
+         -- stylua: ignore
+         vim.keymap.set('', '<leader>E', '<cmd>lua MiniFiles.open()<cr>', { desc = 'Open Explorer' })
       end,
    },
    {
-      'nvim-mini/mini.move',
-      version = '*',
-      event = 'User FilePost',
+      'lewis6991/gitsigns.nvim',
+      event = 'BufEnter',
       config = function()
-         require('mini.move').setup()
+         require('gitsigns').setup({
+            _refresh_staged_on_update = false, -- Don't refresh constantly
+            update_debounce = 200, -- Debounce updates
+            max_file_length = 10000, -- Skip large files
+         })
       end,
    },
    {
       'nvim-mini/mini.clue',
       version = '*',
-      lazy = true,
-      keys = { '<Leader>', '<Localleader>', 'g', 'r', 'c', 'w', 'd', 'o', 'h' },
+      event = 'VeryLazy',
       config = function()
          local miniclue = require('mini.clue')
          miniclue.setup({
@@ -48,6 +106,19 @@ return {
                -- `g` key
                { mode = 'n', keys = 'g' },
                { mode = 'x', keys = 'g' },
+
+               -- visual mode
+               { mode = 'n', keys = 'va' },
+               { mode = 'n', keys = 'vi' },
+               { mode = 'n', keys = '<C-y>' },
+               { mode = 'n', keys = '<C-y>' },
+               { mode = 'n', keys = '<C-l>' },
+               { mode = 'n', keys = '<C-L>' },
+               { mode = 'n', keys = '<C-y>' },
+               { mode = 'n', keys = '<C-Y>' },
+               { mode = 'x', keys = 'o' },
+               { mode = 'n', keys = 'h' },
+               { mode = 'x', keys = 'h' },
 
                -- Marks
                { mode = 'n', keys = "'" },
@@ -81,4 +152,5 @@ return {
          })
       end,
    },
+   {},
 }

@@ -3,10 +3,11 @@ return {
    lazy = true,
    cmd = 'Telescope',
    keys = {
+      { '<leader>f', desc = '+Find' },
       { '<leader>ff', '<cmd>Telescope find_files<cr>', desc = 'Find Files' },
       { '<leader>fg', '<cmd>Telescope live_grep<cr>', desc = 'Live Grep' },
       { '<leader>fb', '<cmd>Telescope buffers<cr>', desc = 'Buffers' },
-
+      -- { '<leader>fa', '<cmd>Telescope aerial<cr>', desc = 'Aerial' },
       {
          '<leader>fp',
          function()
@@ -34,7 +35,7 @@ return {
    opts = {
       defaults = {
          layout_strategy = 'horizontal',
-         layout_config = { prompt_position = 'top' },
+         layout_config = { prompt_position = 'bottom' },
          sorting_strategy = 'ascending',
          winblend = 0,
       },

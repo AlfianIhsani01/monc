@@ -6,20 +6,10 @@ return {
    opts = {
       keymap = {
          preset = 'default',
-         ['<C-Tab>'] = { 'show', 'show_documentation', 'hide_documentation' },
-         ['<C-n>'] = { 'hide' },
+         ['<C-.>'] = { 'show', 'show_documentation', 'hide_documentation' },
+         ['<C-,>'] = { 'hide' },
          ['<Cr>'] = { 'accept', 'fallback' },
-         ['<Tab>'] = {
-            function(cmp)
-               if cmp.snippet_active() then
-                  return cmp.snippet_forward()
-               else
-                  return cmp.select_next()
-               end
-            end,
-            'snippet_forward',
-            'fallback',
-         },
+         ['<Tab>'] = { 'select_next', 'fallback' },
          ['<S-Tab>'] = { 'select_prev', 'fallback' },
          ['<C-U>'] = { 'scroll_documentation_up', 'fallback' },
          ['<C-E>'] = { 'scroll_documentation_down', 'fallback' },
@@ -35,7 +25,10 @@ return {
          menu = {
             auto_show = true,
             draw = {
-               columns = { { 'label', 'label_description', gap = 1 }, { 'kind_icon', gap = 1, 'kind' } },
+               columns = {
+                  { 'label', 'label_description', gap = 1 },
+                  { 'kind_icon', gap = 1, 'kind' },
+               },
             },
          },
          list = {
