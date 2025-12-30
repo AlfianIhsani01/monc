@@ -1,51 +1,52 @@
 local conditions = require('heirline.conditions')
 local utils = require('heirline.utils')
 
-local icons = require('ui.heirline.common').icons
-local separators = require('ui.heirline.common').separators
-local dim = require('ui.heirline.common').dim
--- local colors = require('kanagawa.colors').setup() -- wink
--- require('heirline').load_colors(colors)
+local icons = require('ui.common').icons
+local separators = require('ui.common').separators
+local dim = require('ui.common').dim
+local Align = { provider = '%=' }
+local Space = { provider = ' ' }
+
 local ViMode = {
    init = function(self)
       self.mode = vim.fn.mode(3)
    end,
    static = {
       mode_names = {
-         n = 'N',
-         no = 'N?',
-         nov = 'N?',
-         noV = 'N?',
-         ['no\22'] = 'N?',
-         niI = 'Ni',
-         niR = 'Nr',
-         niV = 'Nv',
-         nt = 'Nt',
+         n = '●',
+         no = '◍',
+         nov = '◍',
+         noV = '◍',
+         ['no\22'] = '◍',
+         niI = '◐',
+         niR = '◑',
+         niV = '◒',
+         nt = '◓',
          v = '⊞',
-         vs = 'Vs',
+         vs = '⧇',
          V = '⊟',
-         Vs = 'Vs',
+         Vs = '▣',
          ['\22'] = '▨',
-         ['\22s'] = '▨',
-         s = 'S',
-         S = 'S_',
-         ['\19'] = '^S',
-         i = 'I',
-         ic = 'Ic',
-         ix = 'Ix',
-         R = 'R',
-         Rc = 'Rc',
-         Rx = 'Rx',
-         Rv = 'Rv',
-         Rvc = 'Rv',
-         Rvx = 'Rv',
-         c = 'C',
-         cv = 'Ex',
+         ['\22s'] = '⬚',
+         s = '◰',
+         S = '◫',
+         ['\19'] = '◻',
+         i = '▲',
+         ic = '⟁',
+         ix = '⨻',
+         R = '⛛',
+         Rc = '⧨',
+         Rx = '▽',
+         Rv = '▼',
+         Rvc = '▼',
+         Rvx = '▼',
+         c = '⧇',
+         cv = '○',
          r = '...',
-         rm = 'M',
+         rm = '⊠',
          ['r?'] = '?',
          ['!'] = '!',
-         t = 'T',
+         t = '$',
       },
    },
    provider = function(self)
@@ -175,7 +176,7 @@ local FileSize = {
          return '0' .. suffix[1]
       end
       local i = math.floor((math.log(fsize) / math.log(1024)))
-      return string.format('%.2g%s', fsize / math.pow(1024, i), suffix[i])
+      return string.format('%.2g%s', fsize / 1024 ^ i, suffix[i])
    end,
 }
 
@@ -184,28 +185,6 @@ local FileLastModified = {
       local ftime = vim.fn.getftime(vim.api.nvim_buf_get_name(0))
       return (ftime > 0) and os.date('%c', ftime)
    end,
-}
-
-local Ruler = {
-   -- %l = current line number
-   -- %L = number of lines in the buffer
-   -- %c = column number
-   -- %P = percentage through file of displayed window
-   -- provider = '%7(%l/%3L%):%2c %P',
-   {
-      provider = function()
-         return '%3L'
-      end,
-      hl = function(self)
-         local color = self:mode_color()
-         return { bg = nil, fg = color, bold = true }
-      end,
-   },
-   {
-      provider = function()
-         return ':%2c'
-      end,
-   },
 }
 
 local ScrollBar = {
@@ -226,18 +205,39 @@ local ScrollBar = {
    end,
 }
 
+local Ruler = {
+   -- %l = current line number
+   -- %L = number of lines in the buffer
+   -- %c = column number
+   -- %P = percentage through file of displayed window
+   -- provider = '%7(%l/%3L%):%2c %P',
+   ScrollBar,
+   {
+      Space,
+      hl = { bg = 'gray' },
+   },
+   {
+      provider = '%3c',
+      hl = { fg = 'cyan', bg = 'gray' },
+   },
+   {
+      provider = separators.block_left,
+      hl = { fg = 'gray' },
+   },
+}
+
 local LSPActive = {
    condition = conditions.lsp_attached,
    update = { 'LspAttach', 'LspDetach', 'WinEnter' },
    provider = icons.lsp .. 'LSP',
-   -- provider  = function(self)
-   --     local names = {}
-   --     for i, server in pairs(vim.lsp.buf_get_active_clients({ bufnr = 0 })) do
-   --         table.insert(names, server.name)
-   --     end
-   --     return " [" .. table.concat(names, " ") .. "]"
+   -- provider = function()
+   --    local names = {}
+   --    for server in pairs(vim.lsp.buf_get_active_clients({ id = 1 })) do
+   --       table.insert(names, server.name)
+   --    end
+   --    return ' [' .. table.concat(names, ' ') .. ']'
    -- end,
-   hl = { fg = 'green', bold = true },
+   hl = { fg = 'orange', bold = true },
    on_click = {
       name = 'heirline_LSP',
       callback = function()
@@ -263,25 +263,25 @@ local Diagnostics = {
    utils.surround({ '[', ']' }, '', {
       {
          provider = function(self)
-            return self.diagnostics[1] and (icons.err .. self.diagnostics[1] .. ' ') or 0 .. ' '
+            return self.diagnostics[1] and (icons.err .. self.diagnostics[1])
          end,
          hl = 'DiagnosticError',
       },
       {
          provider = function(self)
-            return self.diagnostics[2] and (icons.warn .. self.diagnostics[2] .. ' ') or 0 .. ' '
+            return self.diagnostics[2] and (icons.warn .. self.diagnostics[2])
          end,
          hl = 'DiagnosticWarn',
       },
       {
          provider = function(self)
-            return self.diagnostics[3] and (icons.info .. self.diagnostics[3] .. ' ') or 0 .. ' '
+            return self.diagnostics[3] and (icons.info .. self.diagnostics[3])
          end,
          hl = 'DiagnosticInfo',
       },
       {
          provider = function(self)
-            return self.diagnostics[4] and (icons.hint .. self.diagnostics[4]) or 0 .. ' '
+            return self.diagnostics[4] and (icons.hint .. self.diagnostics[4])
          end,
          hl = 'DiagnosticHint',
       },
@@ -404,27 +404,28 @@ local HelpFilename = {
 }
 
 local TerminalName = {
-   -- icon = ' ', -- 
    {
       provider = function()
-         local tname, _ = vim.api.nvim_buf_get_name(0):gsub('.*:', '')
-         return ' ' .. tname
+         local tname, _ = vim.api.nvim_buf_get_name(0):gsub('.*:*/', '')
+         -- local tname, _ = vim.api.nvim_buf_get_name(0)
+         return icons.terminal .. tname
       end,
       hl = { fg = 'blue', bold = true },
    },
-   { provider = ' - ' },
-   {
-      provider = function()
-         return vim.b.term_title
-      end,
-   },
-   {
-      provider = function()
-         local id = require('terminal'):current_term_index()
-         return ' ' .. (id or 'Exited')
-      end,
-      hl = { bold = true, fg = 'blue' },
-   },
+   -- { provider = ' - ' },
+   -- {
+   --    provider = function()
+   --       return vim.b.term_title
+   --    end,
+   -- },
+   -- {
+   --    provider = function()
+   --       -- local id = require('terminal'):current_term_index()
+   --       -- return ' ' .. (id or 'Exited')
+   --       return ' ' .. 'Exited'
+   --    end,
+   --    hl = { bold = true, fg = 'blue' },
+   -- },
 }
 
 local Spell = {
@@ -458,7 +459,7 @@ local MacroRec = {
    condition = function()
       return vim.fn.reg_recording() ~= '' and vim.o.cmdheight == 0
    end,
-   utils.surround({ separators.rounded_left, separators.rounded_right }, 'bright_bg', {
+   utils.surround({ separators.rounded_left, separators.block }, 'bright_bg', {
       {
          provider = icons.rec,
          hl = {
@@ -495,7 +496,7 @@ local ShowCmd = {
    condition = function()
       return vim.o.cmdheight == 0
    end,
-   provider = ':%3.5(%S%)',
+   provider = '%3.5(%S%) ',
    hl = function(self)
       return { bold = true, fg = self:mode_color() }
    end,
@@ -519,19 +520,13 @@ local ShowCmd = {
 --     end,
 -- }
 
-local Align = { provider = '%=' }
-local Space = { provider = ' ' }
 -- stylua: ignore
 ViMode = {
-      -- ShowCmd,
+      ShowCmd,
       MacroRec,
       Snippets,
       ViMode,
    }
--- utils.surround(,
--- { separators.rounded_left, separators.rounded_right },
--- 'bright_bg',
--- )
 
 local DefaultStatusline = {
    {
@@ -551,25 +546,26 @@ local DefaultStatusline = {
          return string.rep(' ', vim.api.nvim_win_get_width(self.winid))
       end,
       hl = {
-         bg = utils.get_highlight('NeoTreeNormal').bg,
+         bg = 'black',
       },
    },
-   ScrollBar,
-   Space,
    Ruler,
    -- Space,
    -- Spell,
+   -- Space,
    -- WorkDir,
    -- FileNameBlock,
    { provider = '%<' },
-   Space,
-   FileType,
-   Space,
-   -- Git,
    -- Space,
    LSPActive,
-   Align,
+   Space,
    Diagnostics,
+   -- Git,
+   -- Space,
+   Align,
+   FileType,
+   Space,
+   -- FileFormat,
    -- { flexible = 3,   { Navic, Space }, { provider = "" } },
    Align,
    -- VirtualEnv,
@@ -625,11 +621,11 @@ local TerminalStatusline = {
       return conditions.buffer_matches({ buftype = { 'terminal' } })
    end,
    hl = { bg = 'dark_red' },
-   { condition = conditions.is_active, ViMode, Space },
-   FileType,
-   Space,
    TerminalName,
    Align,
+   FileType,
+   Space,
+   { condition = conditions.is_active, ViMode },
 }
 
 local StatusLines = {
@@ -643,7 +639,7 @@ local StatusLines = {
    static = {
       mode_colors = {
          n = 'blue',
-         i = 'green',
+         i = 'white',
          v = 'cyan',
          V = 'cyan',
          ['\22'] = 'cyan', -- this is an actual ^V, type <C-v><C-v> in insert mode
@@ -651,10 +647,10 @@ local StatusLines = {
          s = 'purple',
          S = 'purple',
          ['\19'] = 'purple', -- this is an actual ^S, type <C-v><C-s> in insert mode
-         R = 'orange',
-         r = 'orange',
+         R = 'yellow',
+         r = 'yellow',
          ['!'] = 'red',
-         t = 'green',
+         t = 'white',
       },
       mode_color = function(self)
          local mode = conditions.is_active() and vim.fn.mode() or 'n'
@@ -662,34 +658,56 @@ local StatusLines = {
       end,
    },
    fallthrough = false,
-   -- GitStatusline,
+   GitStatusline,
    SpecialStatusline,
    TerminalStatusline,
    InactiveStatusline,
    DefaultStatusline,
 }
 
+-- local CloseButton = {
+--    condition = function(self)
+--       return not vim.bo.modified
+--    end,
+--    update = { 'WinNew', 'WinClosed', 'BufEnter' },
+--    { provider = ' ' },
+--    {
+--       provider = icons.close,
+--       hl = { fg = 'red' },
+--       on_click = {
+--          callback = function(_, minwid)
+--             vim.api.nvim_win_close(minwid, true)
+--          end,
+--          minwid = function()
+--             return vim.api.nvim_get_current_win()
+--          end,
+--          name = 'heirline_winbar_close_button',
+--       },
+--    },
+-- }
+
 local CloseButton = {
    condition = function(self)
       return not vim.bo.modified
    end,
+   -- a small performance improvement:
+   -- re register the component callback only on layout/buffer changes.
    update = { 'WinNew', 'WinClosed', 'BufEnter' },
    { provider = ' ' },
    {
       provider = icons.close,
-      hl = { fg = 'gray' },
+      hl = { fg = 'red' },
       on_click = {
-         callback = function(_, minwid)
-            vim.api.nvim_win_close(minwid, true)
-         end,
          minwid = function()
             return vim.api.nvim_get_current_win()
+         end,
+         callback = function(_, minwid)
+            vim.api.nvim_win_close(minwid, true)
          end,
          name = 'heirline_winbar_close_button',
       },
    },
 }
-
 local WinBar = {
    fallthrough = false,
    -- {
@@ -725,7 +743,7 @@ local WinBar = {
          CloseButton,
       },
       {
-         -- provider = "      ",
+         provider = '      ',
          -- Navic,
          { provider = '%<' },
          Align,

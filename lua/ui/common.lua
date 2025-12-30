@@ -25,24 +25,19 @@ end
 
 M.icons = {
    -- ✗   󰅖 󰅘 󰅚 󰅙 󱎘 
-   close = '󰅙 ',
+   close = '',
    dir = '󰉋 ',
    lsp = ' ', --   
-   vim = ' ', --      
+   vim = ' ', --      
    debug = ' ',
    rec = ' ',
-   modified = '● ',
+   modified = '●',
    readonly = ' ',
    terminal = '  ',
-   err = '',
-   warn = '',
-   info = '',
-   hint = '',
-
-   -- err =  vim.fn.sign_getdefined('DiagnosticSignError')[1].text,
-   -- warn = vim.fn.sign_getdefined('DiagnosticSignWarn')[1].text,
-   -- info = vim.fn.sign_getdefined('DiagnosticSignInfo')[1].text,
-   -- hint = vim.fn.sign_getdefined('DiagnosticSignHint')[1].text,
+   err = '!',
+   warn = '?',
+   info = 'I',
+   hint = '~',
 }
 
 M.separators = {
@@ -63,6 +58,8 @@ M.separators = {
    vert = '│',
    vert_thick = '┃',
    block = '█',
+   block_left = '▌',
+   block_right = '▐',
    double_vert = '║',
    dotted_vert = '┊',
 }

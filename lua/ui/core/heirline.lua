@@ -31,13 +31,13 @@ return {
 
       vim.o.laststatus = 3
       vim.o.showcmdloc = 'statusline'
-      -- vim.o.showtabline = 2
+      vim.o.showtabline = 2
 
       require('heirline').setup({
-         statusline = require('ui.heirline.statusline').statusline,
-         winbar = require('ui.heirline.statusline').winbar,
-         tabline = require('ui.heirline.tabline'),
-         statuscolumn = require('ui.heirline.statuscolumn'),
+         statusline = require('ui.statusline').statusline,
+         winbar = require('ui.statusline').winbar,
+         tabline = require('ui.tabline'),
+         statuscolumn = require('ui.statuscolumn'),
          opts = {
             disable_winbar_cb = function(args)
                if vim.bo[args.buf].filetype == 'neo-tree' then
